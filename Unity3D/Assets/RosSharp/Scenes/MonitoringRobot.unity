@@ -1150,7 +1150,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 394725046}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -1169,9 +1169,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d23eb86c694bc849ad2125615526683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  imageWidth: 512
-  imageHeight: 424
-  numberOfGrids: 5
+  imageWidth: 960
+  imageHeight: 540
+  numberOfGrids: 20
   maxEdgeLength: 0.5
   material: {fileID: 2100000, guid: bba18946e51699647867069e3724a479, type: 2}
 --- !u!114 &394725049
@@ -1187,7 +1187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rosConnector: {fileID: 1103122349}
-  depthTopic: /kinect2/sd/image_depth_rect/compressed
+  depthTopic: /kinect2/qhd/image_depth_rect/compressed
   TimeStep: 0
   numOfDepthReceived: 0
 --- !u!114 &394725050
@@ -1202,7 +1202,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3380cf96d5bc31546bf5e3f6587d69c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referanceLink: {fileID: 1949428195}
 --- !u!114 &394725051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1216,7 +1215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rosConnector: {fileID: 1103122349}
-  colorTopic: /kinect2/sd/image_color_rect/compressed
+  colorTopic: /kinect2/qhd/image_color/compressed
   TimeStep: 0
   numOfColorReceived: 0
 --- !u!114 &394725052
@@ -4375,7 +4374,7 @@ MonoBehaviour:
   Timeout: 10
   Serializer: 0
   Protocol: 0
-  RosBridgeServerUrl: ws://192.168.42.1:9090
+  RosBridgeServerUrl: ws://10.42.0.1:9090
 --- !u!4 &1103122350
 Transform:
   m_ObjectHideFlags: 0
@@ -4783,13 +4782,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257437164}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.024, y: 2.122, z: -0.296}
+  m_LocalRotation: {x: 0.44151682, y: 0.49839613, z: -0.5288611, w: -0.52627957}
+  m_LocalPosition: {x: 0.115, y: -0.015, z: -1.237}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1949428195}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1559280615}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 3.58, y: -83.48, z: -272.914}
 --- !u!1 &1261624540
 GameObject:
   m_ObjectHideFlags: 0
@@ -5483,6 +5482,7 @@ Transform:
   - {fileID: 483840355}
   - {fileID: 222839306}
   - {fileID: 1053461857}
+  - {fileID: 1257437167}
   m_Father: {fileID: 875801929}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7030,7 +7030,6 @@ Transform:
   - {fileID: 83531653}
   - {fileID: 1029464255}
   - {fileID: 165451205}
-  - {fileID: 1257437167}
   m_Father: {fileID: 497034594}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

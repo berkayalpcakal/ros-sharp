@@ -46,12 +46,10 @@ namespace RosSharp.RosBridgeClient
         }
 
         private void GetDepthsFromImage(int i, int y_start, int y_end, int numberOfRowsPerGrid)
-        {
-            Vector3 referanceVector = new Vector3(0.936f, 2.0f, 4.807f);
-            
+        {        
             for (int y = y_start, j = 0; y <= y_end; y++)
                 for (int x = 0; x < visualizer.imageWidth; x++)
-                    coordinates[i][j++] = get3DPoint(x, y, image.Data[y, x, 0]) + referanceVector;
+                    coordinates[i][j++] = get3DPoint(x, y, image.Data[y, x, 0]);
         }
 
         private Image<Gray, short> decodeCompressedGrayImage(byte[] data)
