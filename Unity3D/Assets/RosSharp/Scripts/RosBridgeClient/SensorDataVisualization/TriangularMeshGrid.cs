@@ -15,6 +15,7 @@ limitations under the License.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace RosSharp.RosBridgeClient
@@ -42,8 +43,12 @@ namespace RosSharp.RosBridgeClient
             meshFilter = gameObject.AddComponent<MeshFilter>();
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshFilter.mesh = new Mesh { name = "TriangularMeshGrid" };
+            meshFilter.mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             visualizer = gameObject.GetComponentInParent<PointCloudVisualizer>();
-            maxEdgeLength = visualizer.maxEdgeLength;
+            if (visualizer != null)
+                maxEdgeLength = visualizer.maxEdgeLength;
+            else
+                maxEdgeLength = 0.01f;
         }
 
         public void InitializeGrid(int _numberOfRows, int _numberOfColumns, Material _material, Vector3[] _vertices, Color[] _colors)
@@ -120,6 +125,11 @@ namespace RosSharp.RosBridgeClient
             meshFilter.mesh.triangles = triangles;
             meshFilter.mesh.vertices = _vertices;
 
+        }
+
+        public void ReverseNormals()
+        {
+            meshFilter.mesh.triangles = meshFilter.mesh.triangles.Reverse().ToArray();
         }
 
     }

@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.unity3d.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\UserData\\z003w73w\\Documents\\GitHub\\ros-sharp-berkay\\Unity3D\\actions.json",
+      "action_manifest_path": "D:\\UserData\\Z003W73W\\Documents\\GitHub\\ros-sharp-berkay\\Unity3D\\actions.json",
       "strings": {
         "en_us": {
           "name": "Unity3D [Testing]"

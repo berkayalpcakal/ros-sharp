@@ -49,7 +49,7 @@ namespace RosSharp.RosBridgeClient
         {        
             for (int y = y_start, j = 0; y <= y_end; y++)
                 for (int x = 0; x < visualizer.imageWidth; x++)
-                    coordinates[i][j++] = get3DPoint(x, y, image.Data[y, x, 0]);
+                    coordinates[i][j++] = get3DPoint(x, y, image.Data[y, x, 0]).Ros2Unity();
         }
 
         private Image<Gray, short> decodeCompressedGrayImage(byte[] data)
@@ -62,7 +62,7 @@ namespace RosSharp.RosBridgeClient
         private Vector3 get3DPoint(int x, int y, int z)
         {
             float depth = ((float)z) / 1000;
-            return new Vector3(-(x - visualizer.imageWidth / 2) * focal * depth, -(y - visualizer.imageHeight / 2) * focal * depth, -depth);
+            return new Vector3( (x - visualizer.imageWidth / 2) * focal * depth, (y - visualizer.imageHeight / 2) * focal * depth, depth);
         }
 
     }

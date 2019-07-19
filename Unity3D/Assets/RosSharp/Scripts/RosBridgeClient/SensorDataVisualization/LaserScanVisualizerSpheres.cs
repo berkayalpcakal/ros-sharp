@@ -23,8 +23,8 @@ namespace RosSharp.RosBridgeClient
         public float objectWidth;
         public Material material;
 
-        private GameObject laserScanSpheres;
-        private GameObject[] LaserScan;
+        public GameObject laserScanSpheres { get; private set; }
+        public GameObject[] LaserScan { get; private set; }
         private bool IsCreated = false;
 
         private void Create(int numOfSpheres)
@@ -38,7 +38,7 @@ namespace RosSharp.RosBridgeClient
             {
                 LaserScan[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 DestroyImmediate(LaserScan[i].GetComponent<Collider>());                    
-                LaserScan[i].name = "LaserScanSpheres";
+                LaserScan[i].name = "LaserScanSphere";
                 LaserScan[i].transform.parent = laserScanSpheres.transform;
                 LaserScan[i].GetComponent<Renderer>().material = material;
             }
@@ -63,12 +63,14 @@ namespace RosSharp.RosBridgeClient
 
         protected override void DestroyObjects()
         {
-            for (int i = 0; i < LaserScan.Length; i++)
-                Destroy(LaserScan[i]);
+            if (IsCreated)
+            {
+                for (int i = 0; i < LaserScan.Length; i++)
+                    Destroy(LaserScan[i]);
 
-            Destroy(laserScanSpheres);
-            IsCreated = false;
+                Destroy(laserScanSpheres);
+                IsCreated = false;
+            }
         }
-
     }
 }
