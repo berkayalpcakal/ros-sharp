@@ -7,13 +7,11 @@ namespace RosSharp.RosBridgeClient
     [RequireComponent(typeof(RosConnector), typeof(MapProcessor))]
     public class MapSubscriber : Subscriber<MessageTypes.Nav.OccupancyGrid>
     {
-        private RosConnector rosConnector;
         private MapProcessor mapProcessor;
 
         protected override void Start()
         {
             base.Start();
-            rosConnector = GetComponent<RosConnector>();
             mapProcessor = GetComponent<MapProcessor>();
         }
 
