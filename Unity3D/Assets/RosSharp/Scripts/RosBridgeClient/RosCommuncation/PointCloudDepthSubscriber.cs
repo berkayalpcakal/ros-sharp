@@ -31,11 +31,11 @@ namespace RosSharp.RosBridgeClient
 
         private void Start()
         {
-            rosConnector.RosSocket.Subscribe<Messages.Sensor.CompressedImage>(depthTopic, ReceiveDepthMessage, (int)(TimeStep * 1000));
+            rosConnector.RosSocket.Subscribe<MessageTypes.Sensor.CompressedImage>(depthTopic, ReceiveDepthMessage, (int)(TimeStep * 1000));
             depthProcessor = GetComponent<PointCloudDepthProcessor>();
         }
 
-        private void ReceiveDepthMessage(Messages.Sensor.CompressedImage depthImage)
+        private void ReceiveDepthMessage(MessageTypes.Sensor.CompressedImage depthImage)
         {
             depthData = depthImage.data;
             numOfDepthReceived++;

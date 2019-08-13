@@ -8,7 +8,7 @@ namespace RosSharp.RosBridgeClient
     {
         public OccupancyGrid occupancyGrid;
 
-        private Messages.Navigation.MapMetaData mapMetaData;
+        private MessageTypes.Nav.MapMetaData mapMetaData;
         private sbyte[] data;
         private bool isNewMsgReceived = false;
 
@@ -21,7 +21,7 @@ namespace RosSharp.RosBridgeClient
             }
         }
 
-        public void SetData(Messages.Navigation.MapMetaData _mapMetaData, sbyte[] _data)
+        public void SetData(MessageTypes.Nav.MapMetaData _mapMetaData, sbyte[] _data)
         {
             data = _data;
             mapMetaData = _mapMetaData;
@@ -31,7 +31,7 @@ namespace RosSharp.RosBridgeClient
         private void UpdateOccupancyGrid()
         {
                 occupancyGrid.UpdateGrid( data, (int)mapMetaData.height, (int)mapMetaData.width, mapMetaData.resolution,
-                    new Vector3(mapMetaData.origin.position.x, mapMetaData.origin.position.y, mapMetaData.origin.position.z));
+                    new Vector3((float)mapMetaData.origin.position.x, (float)mapMetaData.origin.position.y, (float)mapMetaData.origin.position.z));
 
             occupancyGrid.UpdateOccupancyColors();
         }

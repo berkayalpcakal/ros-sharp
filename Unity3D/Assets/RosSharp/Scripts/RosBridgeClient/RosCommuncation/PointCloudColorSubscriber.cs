@@ -31,11 +31,11 @@ namespace RosSharp.RosBridgeClient
 
         private void Start()
         {
-            rosConnector.RosSocket.Subscribe<Messages.Sensor.CompressedImage>(colorTopic, ReceiveColorMessage, (int)(TimeStep * 1000));
+            rosConnector.RosSocket.Subscribe<MessageTypes.Sensor.CompressedImage>(colorTopic, ReceiveColorMessage, (int)(TimeStep * 1000));
             colorProcessor = GetComponent<PointCloudColorProcessor>();
         }
 
-        private void ReceiveColorMessage(Messages.Sensor.CompressedImage colorImage)
+        private void ReceiveColorMessage(MessageTypes.Sensor.CompressedImage colorImage)
         {
             colorData = colorImage.data;
             numOfColorReceived++;
