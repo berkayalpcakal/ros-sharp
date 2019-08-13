@@ -30,12 +30,10 @@ namespace RosSharp.RosBridgeClient
 
         private void UpdateOccupancyGrid()
         {
-            occupancyGrid.UpdateGrid( data, (int)mapMetaData.width, (int)mapMetaData.height, mapMetaData.resolution,
-                new Vector3(mapMetaData.origin.position.x, mapMetaData.origin.position.y, mapMetaData.origin.position.z).Ros2Unity());
+                occupancyGrid.UpdateGrid( data, (int)mapMetaData.height, (int)mapMetaData.width, mapMetaData.resolution,
+                    new Vector3(mapMetaData.origin.position.x, mapMetaData.origin.position.y, mapMetaData.origin.position.z));
 
             occupancyGrid.UpdateOccupancyColors();
         }
-
-
     }
 }
