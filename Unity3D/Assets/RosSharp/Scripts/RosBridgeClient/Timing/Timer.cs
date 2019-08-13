@@ -1,5 +1,5 @@
 ﻿/*
-© Siemens AG, 2017-2018
+© Siemens AG, 2017-2019
 Author: Dr. Martin Bischoff (martin.bischoff@siemens.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,9 +27,9 @@ namespace RosSharp.RosBridgeClient
             HeaderExtensions.Timer = this;
         }
 
-        public virtual Messages.Standard.Time Now()
+        public virtual MessageTypes.Std.Time Now()
         {
-            Messages.Standard.Time stamp = new Messages.Standard.Time();
+            MessageTypes.Std.Time stamp = new MessageTypes.Std.Time();
             float time = Time.realtimeSinceStartup;
             stamp.secs = (uint)time;
             stamp.nsecs = (uint)(1e9 * (time - stamp.secs));

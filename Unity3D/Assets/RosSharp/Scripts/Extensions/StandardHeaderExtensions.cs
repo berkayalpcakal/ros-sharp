@@ -1,5 +1,5 @@
 ﻿/*
-© Siemens AG, 2017-2018
+© Siemens AG, 2017-2019
 Author: Dr. Martin Bischoff (martin.bischoff@siemens.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@ limitations under the License.
 
 // Adding Timestamp switching
 // Shimadzu corp , 2019, Akira NODA (a-noda@shimadzu.co.jp / you.akira.noda@gmail.com)
+
 using UnityEngine;
 namespace RosSharp.RosBridgeClient
 {
@@ -28,7 +29,7 @@ namespace RosSharp.RosBridgeClient
             timer = defaultTimer;
         }
 
-        public static void Update(this Messages.Standard.Header header)
+        public static void Update(this MessageTypes.Std.Header header)
         {
             if (timer == null)
             {

@@ -1,5 +1,5 @@
 ﻿/*
-© Siemens AG, 2018
+© Siemens AG, 2018-2019
 Author: Berkay Alp Cakal (berkay_alp.cakal.ct@siemens.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ namespace RosSharp.RosBridgeClient
             isReceived = false;
         }
 
-        public void Write(Messages.Sensor.LaserScan laserScan)
+        public void Write(MessageTypes.Sensor.LaserScan laserScan)
         {
             ranges = new float[laserScan.ranges.Length];
             directions = new Vector3[laserScan.ranges.Length];
