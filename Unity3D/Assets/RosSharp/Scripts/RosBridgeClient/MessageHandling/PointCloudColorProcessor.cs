@@ -18,6 +18,7 @@ using UnityEngine;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
+using System.Threading.Tasks;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -27,20 +28,35 @@ namespace RosSharp.RosBridgeClient
         private Image<Bgr, byte> image;
         public Color[][] colors { get; set; }
         public bool[] receivedNewColors { get; set; }
+        private int[] y_start;
+        private int[] y_end;
+
+        public void Start()
+        {
+            y_start = new int[visualizer.numberOfGrids];
+            y_end = new int[visualizer.numberOfGrids];
+
+            for (int i = 0, start = 0, end = 0; i < visualizer.numberOfGrids; i++)
+            {
+                end = start + visualizer.numberOfRowsPerGrid[i];
+                if (end > visualizer.imageHeight)
+                    end = visualizer.imageHeight;
+
+                y_start[i] = start;
+                y_end[i] = end;
+
+                start = end;
+            }
+        }
 
         public void Process(byte[] imageData)
         {
             image = decodeCompressedColorImage(imageData);
-
-            for (int i = 0, y_start = 0, y_end = 0; i < visualizer.numberOfGrids; i++)
+            Parallel.For(0, visualizer.numberOfGrids, i =>
             {
-                y_end = y_start + visualizer.numberOfRowsPerGrid[i];
-                if (y_end > visualizer.imageHeight)
-                    y_end = visualizer.imageHeight;
-                GetColorsFromImage(i, y_start, y_end, visualizer.numberOfRowsPerGrid[i]);
-                y_start = y_end;
+                GetColorsFromImage(i, y_start[i], y_end[i], visualizer.numberOfRowsPerGrid[i]);
                 receivedNewColors[i] = true;
-            }
+            });
         }
 
         private void GetColorsFromImage(int i, int y_start, int y_end, int numberOfRowsPerGrid)

@@ -19,27 +19,27 @@ using System.Collections;
 
 namespace RosSharp.RosBridgeClient
 {
-    [RequireComponent(typeof(PointCloudColorProcessor))]
-    public class PointCloudColorSubscriber : MonoBehaviour
+    public class PointCloudColorSubscriber : Subscriber<MessageTypes.Sensor.CompressedImage>
     {
-        public RosConnector rosConnector;
-        public string colorTopic;
-        public float TimeStep;
         public byte[] colorData { get; private set; }
         public int numOfColorReceived = 0;
-        private PointCloudColorProcessor colorProcessor;
+        public PointCloudColorProcessor colorProcessor;
 
-        private void Start()
+        protected override void Start()
         {
-            rosConnector.RosSocket.Subscribe<MessageTypes.Sensor.CompressedImage>(colorTopic, ReceiveColorMessage, (int)(TimeStep * 1000));
-            colorProcessor = GetComponent<PointCloudColorProcessor>();
+            base.Start();
         }
 
-        private void ReceiveColorMessage(MessageTypes.Sensor.CompressedImage colorImage)
+        protected override void ReceiveMessage(MessageTypes.Sensor.CompressedImage colorImage)
         {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             colorData = colorImage.data;
             numOfColorReceived++;
             colorProcessor.Process(colorData);
+
+            Debug.Log("rgb subscriber elapsed time per a frame process: " + stopwatch.ElapsedMilliseconds);
         }
 
     }

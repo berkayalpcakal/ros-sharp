@@ -19,27 +19,28 @@ using UnityEngine;
 
 namespace RosSharp.RosBridgeClient
 {
-    [RequireComponent(typeof(PointCloudDepthProcessor))]
-    public class PointCloudDepthSubscriber: MonoBehaviour
+    public class PointCloudDepthSubscriber: Subscriber<MessageTypes.Sensor.CompressedImage>
     {
-        public RosConnector rosConnector;
-        public string depthTopic;
-        public float TimeStep;
         public byte[] depthData { get; private set; }
         public int numOfDepthReceived = 0;
-        private PointCloudDepthProcessor depthProcessor;
+        public PointCloudDepthProcessor depthProcessor;
 
-        private void Start()
+        protected override void Start()
         {
-            rosConnector.RosSocket.Subscribe<MessageTypes.Sensor.CompressedImage>(depthTopic, ReceiveDepthMessage, (int)(TimeStep * 1000));
-            depthProcessor = GetComponent<PointCloudDepthProcessor>();
+            base.Start();
         }
 
-        private void ReceiveDepthMessage(MessageTypes.Sensor.CompressedImage depthImage)
+        protected override void ReceiveMessage(MessageTypes.Sensor.CompressedImage depthImage)
         {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             depthData = depthImage.data;
             numOfDepthReceived++;
             depthProcessor.Process(depthData);
+
+            Debug.Log("depth subscriber elapsed time per a frame process: " + stopwatch.ElapsedMilliseconds);
+
         }
 
     }

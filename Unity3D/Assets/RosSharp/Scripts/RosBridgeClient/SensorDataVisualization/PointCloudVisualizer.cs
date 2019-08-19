@@ -41,10 +41,11 @@ namespace RosSharp.RosBridgeClient
         private Color[][] colors;
         public int[] numberOfRowsPerGrid{ get; private set; }
         public bool isGenerated { get; private set; }
-        private int meshIdx = 0;
+        public int meshIdx { get; private set; }
 
         private void Start()
         {
+            meshIdx = 0;
             colorProcessor  = GetComponent<PointCloudColorProcessor>();
             depthProcessor  = GetComponent<PointCloudDepthProcessor>();
             numberOfRows    = imageHeight - 1;
@@ -59,10 +60,14 @@ namespace RosSharp.RosBridgeClient
             depthProcessor.receivedNewDepths = new bool[numberOfGrids];
 
             CreateGrids();
+            GameObject.Find("PointCloudVisualizer").transform.parent = GameObject.Find("tool0").transform;
         }
 
         private void Update()
         {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             if (colorProcessor.receivedNewColors[meshIdx])
                 grids[meshIdx].GetComponent<TriangularMeshGrid>().SetColor(colorProcessor.colors[meshIdx]);
             colorProcessor.receivedNewColors[meshIdx] = false;
@@ -72,6 +77,8 @@ namespace RosSharp.RosBridgeClient
             depthProcessor.receivedNewDepths[meshIdx] = false;
 
             meshIdx = (meshIdx + 1) % numberOfGrids;
+
+            Debug.Log("visualizer elapsed time per a grid update: " + stopwatch.ElapsedMilliseconds);
         }
 
         private void CreateGrids()
@@ -84,7 +91,7 @@ namespace RosSharp.RosBridgeClient
             colors = new Color[numberOfGrids][];
 
             numberOfRowsPerGrid = new int[numberOfGrids];
-            int chunkSize = numberOfRows / numberOfGrids + 1;
+            int chunkSize = (int)(numberOfRows / numberOfGrids) + 1;
 
             int rowsCovered = 0;
             for (int i = 0, y_start = 0, y_end = 0; i < numberOfGrids; i++)

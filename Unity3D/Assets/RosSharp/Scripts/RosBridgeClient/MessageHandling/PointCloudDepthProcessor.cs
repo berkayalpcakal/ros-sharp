@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -29,24 +29,39 @@ namespace RosSharp.RosBridgeClient
         public bool[] receivedNewDepths { get; set; }
         public Vector3[][] coordinates { get; set; }
 
-        public void Process(byte[] imageData)
+        private int[] y_start;
+        private int[] y_end;
+
+        public void Start()
+        {
+            y_start = new int[visualizer.numberOfGrids];
+            y_end = new int[visualizer.numberOfGrids];
+
+            for (int i = 0, start = 0, end = 0; i < visualizer.numberOfGrids; i++)
+            {
+                end = start + visualizer.numberOfRowsPerGrid[i];
+                if (end > visualizer.imageHeight)
+                    end = visualizer.imageHeight;
+
+                y_start[i] = start;
+                y_end[i] = end;
+
+                start = end;
+            }
+        }
+
+    public void Process(byte[] imageData)
         {
             image = decodeCompressedGrayImage(imageData);
-
-            for (int i = 0, y_start = 0, y_end = 0; i < visualizer.numberOfGrids; i++)
+            Parallel.For(0, visualizer.numberOfGrids, i =>
             {
-                y_end = y_start + visualizer.numberOfRowsPerGrid[i];
-                if (y_end > visualizer.imageHeight)
-                    y_end = visualizer.imageHeight;
-                GetDepthsFromImage(i, y_start, y_end, visualizer.numberOfRowsPerGrid[i]);
-                y_start = y_end;
+                GetDepthsFromImage(i, y_start[i], y_end[i], visualizer.numberOfRowsPerGrid[i]);
                 receivedNewDepths[i] = true;
-            }
-            
+            });
         }
 
         private void GetDepthsFromImage(int i, int y_start, int y_end, int numberOfRowsPerGrid)
-        {        
+        {
             for (int y = y_start, j = 0; y <= y_end; y++)
                 for (int x = 0; x < visualizer.imageWidth; x++)
                     coordinates[i][j++] = get3DPoint(x, y, image.Data[y, x, 0]).Ros2Unity();
