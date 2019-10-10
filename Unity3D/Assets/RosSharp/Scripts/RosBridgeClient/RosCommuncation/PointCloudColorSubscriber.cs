@@ -19,7 +19,7 @@ using System.Collections;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class PointCloudColorSubscriber : Subscriber<MessageTypes.Sensor.CompressedImage>
+    public class PointCloudColorSubscriber : UnitySubscriber<MessageTypes.Sensor.CompressedImage>
     {
         public byte[] colorData { get; private set; }
         public int numOfColorReceived = 0;

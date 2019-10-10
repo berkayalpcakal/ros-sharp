@@ -5,7 +5,7 @@ using UnityEngine;
 namespace RosSharp.RosBridgeClient
 {
     [RequireComponent(typeof(RosConnector), typeof(MapProcessor))]
-    public class MapSubscriber : Subscriber<MessageTypes.Nav.OccupancyGrid>
+    public class MapSubscriber : UnitySubscriber<MessageTypes.Nav.OccupancyGrid>
     {
         private MapProcessor mapProcessor;
 

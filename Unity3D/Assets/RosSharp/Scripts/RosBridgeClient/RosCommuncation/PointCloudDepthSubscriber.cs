@@ -19,7 +19,7 @@ using UnityEngine;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class PointCloudDepthSubscriber: Subscriber<MessageTypes.Sensor.CompressedImage>
+    public class PointCloudDepthSubscriber: UnitySubscriber<MessageTypes.Sensor.CompressedImage>
     {
         public byte[] depthData { get; private set; }
         public int numOfDepthReceived = 0;
