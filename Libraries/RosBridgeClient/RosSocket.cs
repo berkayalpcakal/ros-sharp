@@ -22,6 +22,12 @@ using System.Linq;
 using System.Threading;
 using RosSharp.RosBridgeClient.Protocols;
 
+using PeterO.Cbor;
+using Dahomey.Cbor;
+using System.IO;
+using Dahomey.Cbor.ObjectModel;
+using System.Diagnostics;
+
 namespace RosSharp.RosBridgeClient
 {
     public class RosSocket
@@ -34,6 +40,8 @@ namespace RosSharp.RosBridgeClient
         private Dictionary<string, ServiceProvider> ServiceProviders = new Dictionary<string, ServiceProvider>();
         private Dictionary<string, ServiceConsumer> ServiceConsumers = new Dictionary<string, ServiceConsumer>();
         private ISerializer Serializer;
+        DahomeyCborSerializer cborSerializer = new DahomeyCborSerializer();
+        //PeterOCborSerializer cborSerializer = new PeterOCborSerializer();
         private object SubscriberLock = new object();
 
         public RosSocket(IProtocol protocol, SerializerEnum serializer = SerializerEnum.Microsoft)
@@ -174,37 +182,86 @@ namespace RosSharp.RosBridgeClient
             return;
         }
 
-        private void Receive(object sender, EventArgs e)
+        private void UnpackCBOR(byte[] buffer)
         {
-            byte[] buffer = ((MessageEventArgs)e).RawData;
-            DeserializedObject jsonElement = Serializer.Deserialize(buffer);
+            DeserializedObject deserializedObject = cborSerializer.Deserialize(buffer);
 
-            switch (jsonElement.GetProperty("op"))            
+            switch (deserializedObject.GetProperty("op"))
             {
                 case "publish":
                     {
-                        string topic = jsonElement.GetProperty("topic");
-                        string msg = jsonElement.GetProperty("msg");
+                        string topic = deserializedObject.GetProperty("topic");
                         foreach (Subscriber subscriber in SubscribersOf(topic))
-                            subscriber.Receive(msg, Serializer);
+                        {
+                            subscriber.ReceiveCbor(buffer);
+                            //subscriber.Receive(deserializedObject.GetPropertyAsJSON("msg"), Serializer);
+                        }
                         return;
                     }
                 case "service_response":
                     {
-                        string id = jsonElement.GetProperty("id");
-                        string values = jsonElement.GetProperty("values");
+                        string id = deserializedObject.GetProperty("id");
+                        string values = deserializedObject.GetProperty("values");
                         ServiceConsumers[id].Consume(values, Serializer);
                         return;
                     }
                 case "call_service":
                     {
-                        string id = jsonElement.GetProperty("op");
-                        string service = jsonElement.GetProperty("service");
-                        string args = jsonElement.GetProperty("args");
+                        string id = deserializedObject.GetProperty("op");
+                        string service = deserializedObject.GetProperty("service");
+                        string args = deserializedObject.GetProperty("args");
                         Send(ServiceProviders[service].Respond(id, args, Serializer));
                         return;
                     }
             }
+        }
+
+        private void UnpackJSON(DeserializedObject deserializedObject)
+        {
+            switch (deserializedObject.GetProperty("op"))
+            {
+                case "publish":
+                    {
+                        string topic = deserializedObject.GetProperty("topic");
+                        foreach (Subscriber subscriber in SubscribersOf(topic))
+                            subscriber.Receive(deserializedObject.GetPropertyAsJSON("msg"), Serializer);
+                        return;
+                    }
+                case "service_response":
+                    {
+                        string id = deserializedObject.GetProperty("id");
+                        string values = deserializedObject.GetProperty("values");
+                        ServiceConsumers[id].Consume(values, Serializer);
+                        return;
+                    }
+                case "call_service":
+                    {
+                        string id = deserializedObject.GetProperty("op");
+                        string service = deserializedObject.GetProperty("service");
+                        string args = deserializedObject.GetProperty("args");
+                        Send(ServiceProviders[service].Respond(id, args, Serializer));
+                        return;
+                    }
+            }
+        }
+
+        private void Receive(object sender, EventArgs e)
+        {
+            byte[] buffer = ((MessageEventArgs)e).RawData;
+            DeserializedObject deserializedObject;
+
+            try
+            {
+                deserializedObject = Serializer.Deserialize(buffer);
+                UnpackJSON(deserializedObject);
+            }
+            catch
+            {
+                UnpackCBOR( buffer);
+            }
+
+
+
         }
 
         private List<Subscriber> SubscribersOf(string topic)

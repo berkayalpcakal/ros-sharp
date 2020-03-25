@@ -19,11 +19,13 @@ namespace RosSharp.RosBridgeClient
     {
         byte[] Serialize<T>(T obj);
         DeserializedObject Deserialize(byte[] rawData);
+        DeserializedObject Deserialize(string json);
         T Deserialize<T>(string JsonString);
     } 
 
     internal abstract class DeserializedObject
     {
         internal abstract string GetProperty(string property);
+        internal abstract string GetPropertyAsJSON(string property);
     }
 }

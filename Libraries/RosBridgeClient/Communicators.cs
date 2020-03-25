@@ -14,6 +14,7 @@ limitations under the License.
 */
 
 using System;
+using Dahomey.Cbor;
 
 namespace RosSharp.RosBridgeClient
 {
@@ -66,6 +67,8 @@ namespace RosSharp.RosBridgeClient
         internal abstract Type TopicType { get; }
 
         internal abstract void Receive(string message, ISerializer serializer);
+        public abstract void InvokeSubscriptionHandler(object msg);
+        internal abstract void ReceiveCbor(byte[] buffer);
 
         internal Unsubscription Unsubscribe()
         {
@@ -89,10 +92,34 @@ namespace RosSharp.RosBridgeClient
             subscription = new Subscription(id, Topic, GetRosName<T>(), throttle_rate, queue_length, fragment_size, compression);
         }
 
+        internal override void ReceiveCbor(byte[] buffer)
+        {
+            ReadOnlySpan<byte> span= new ReadOnlySpan<byte>(buffer);
+            Publication<T> publication = Cbor.Deserialize<Publication<T>>(span); 
+            SubscriptionHandler.Invoke(publication.msg);
+        }
+
+
+
         internal override void Receive(string message, ISerializer serializer)
         {
-            SubscriptionHandler.Invoke(serializer.Deserialize<T>(message));
+            int byteCount = System.Text.ASCIIEncoding.ASCII.GetByteCount(message);
+            try
+            {
+                T msg = serializer.Deserialize<T>(message);
+                SubscriptionHandler.Invoke(msg);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("{0} Exception caught.", e);
+            }
         }
+
+        public override void InvokeSubscriptionHandler(object msg)
+        {
+            SubscriptionHandler.Invoke((T)msg);
+        }
+
     }
 
     internal abstract class ServiceProvider : Communicator

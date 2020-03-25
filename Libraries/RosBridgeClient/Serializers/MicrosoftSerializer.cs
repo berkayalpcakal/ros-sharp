@@ -38,6 +38,11 @@ namespace RosSharp.RosBridgeClient
             return JsonSerializer.Deserialize<T>(json);
         }
 
+        public DeserializedObject Deserialize(string json)
+        {
+            JsonElement jsonElement = JsonDocument.Parse(json).RootElement;
+            return new MicrosoftJsonObject(jsonElement);
+        }
     }
 
     internal class MicrosoftJsonObject : DeserializedObject
@@ -52,6 +57,12 @@ namespace RosSharp.RosBridgeClient
         internal override string GetProperty(string property)
         {
             return jObject.GetProperty(property).ToString();
+        }
+
+        internal override string GetPropertyAsJSON(string property)
+        {
+            string json = jObject.GetProperty(property).GetRawText();
+            return json;
         }
     }
 }

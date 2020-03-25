@@ -45,6 +45,12 @@ namespace RosSharp.RosBridgeClient
         {
             return JsonConvert.DeserializeObject<T>(json);
         }
+
+        public DeserializedObject Deserialize(string json)
+        {
+            // Implemented to avoid build error, BSON Serializer will never receive a json string 
+            throw new System.NotImplementedException();
+        }
     }
 
     internal class NewtonsoftBsonObject : DeserializedObject
@@ -59,6 +65,11 @@ namespace RosSharp.RosBridgeClient
         internal override string GetProperty(string property)
         {
             return jObject.GetValue(property).ToString();
+        }
+
+        internal override string GetPropertyAsJSON(string property)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
