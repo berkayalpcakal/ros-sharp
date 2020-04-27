@@ -236,9 +236,9 @@ namespace RosSharp.RosBridgeClient
                     }
                 case "call_service":
                     {
-                        string id = jsonElement.GetProperty("id");
-                        string service = jsonElement.GetProperty("service");
-                        string args = jsonElement.GetProperty("args");
+                        string id = deserializedObject.GetProperty("id");
+                        string service = deserializedObject.GetProperty("service");
+                        string args = deserializedObject.GetProperty("args");
                         Send(ServiceProviders[service].Respond(id, args, Serializer));
                         return;
                     }
@@ -257,11 +257,8 @@ namespace RosSharp.RosBridgeClient
             }
             catch
             {
-                UnpackCBOR( buffer);
+                UnpackCBOR(buffer);
             }
-
-
-
         }
 
         private List<Subscriber> SubscribersOf(string topic)

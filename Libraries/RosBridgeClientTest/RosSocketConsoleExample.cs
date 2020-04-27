@@ -51,10 +51,11 @@ namespace RosSharp.RosBridgeClientTest
 
             // Subscription:
             //string subscription_id = rosSocket.Subscribe<std_msgs.String>
-            //    ("/subscription_test", SubscriptionHandler, compression: "cbor");
+            //    ("/subscription_test", SubscriptionHandlerString, compression: "cbor");
 
             string subscription_id = rosSocket.Subscribe<RosBridgeClient.MessageTypes.Sensor.PointCloud2>
-                ("/camera/depth/points", SubscriptionHandler, compression: "none");
+                //("/camera/depth/points", SubscriptionHandlerPointCloud2, compression: "cbor");
+                ("/custom_pc2", SubscriptionHandlerPointCloud2, compression: "none");
 
             //        string subscription_id = rosSocket.Subscribe<RosBridgeClient.MessageTypes.Sensor.CompressedImage>
             //("/camera/rgb/image_raw/compressed", SubscriptionHandler, compression: "none");
@@ -79,13 +80,14 @@ namespace RosSharp.RosBridgeClientTest
             rosSocket.Close();
         }
 
-        //private static void SubscriptionHandler(std_msgs.String message)
-        private static void SubscriptionHandler(RosBridgeClient.MessageTypes.Sensor.PointCloud2 message)
-        //private static void SubscriptionHandler(RosBridgeClient.MessageTypes.Sensor.CompressedImage message)
-        //private static void SubscriptionHandler(RosBridgeClient.MessageTypes.Nav.Odometry message)
+        private static void SubscriptionHandlerString(std_msgs.String message)
         {
-            //Console.WriteLine((message).data);
+            Console.WriteLine((message).data);
         }
+
+        private static void SubscriptionHandlerPointCloud2(RosBridgeClient.MessageTypes.Sensor.PointCloud2 message) { }
+        private static void SubscriptionHandlerCompressedImage(RosBridgeClient.MessageTypes.Sensor.CompressedImage message) { }
+        private static void SubscriptionHandlerOdometry(RosBridgeClient.MessageTypes.Nav.Odometry message) { }
 
         private static void ServiceCallHandler(rosapi.GetParamResponse message)
         {

@@ -94,12 +94,36 @@ namespace RosSharp.RosBridgeClient
 
         internal override void ReceiveCbor(byte[] buffer)
         {
-            ReadOnlySpan<byte> span= new ReadOnlySpan<byte>(buffer);
-            Publication<T> publication = Cbor.Deserialize<Publication<T>>(span); 
-            SubscriptionHandler.Invoke(publication.msg);
+            //DahomeyCborSerializer cborSerializer = new DahomeyCborSerializer();
+            //DeserializedObject deserializedObject = cborSerializer.Deserialize(buffer);
+            //string msgJSON = deserializedObject.GetPropertyAsJSON("msg");
+
+            NewtonsoftJsonSerializer jsonSerializer = new NewtonsoftJsonSerializer();
+
+            //try
+            //{
+            //    MessageTypes.Sensor.PointCloud2 pointCloud = jsonSerializer.Deserialize<MessageTypes.Sensor.PointCloud2>(msgJSON);
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine("Exception:\n {0}", e.ToString());
+            //}
+
+
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(buffer);
+            try
+            {
+                string json = Cbor.ToJson(span);
+                //Publication<T> publication = Cbor.Deserialize<Publication<T>>(span);
+                DeserializedObject deserializedObject = jsonSerializer.Deserialize(json);
+                MessageTypes.Sensor.PointCloud2 cloud =jsonSerializer.Deserialize<MessageTypes.Sensor.PointCloud2>(deserializedObject.GetProperty("msg"));
+                //SubscriptionHandler.Invoke(publication.msg);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("{0} Exception caught: ", e.ToString());
+            }
         }
-
-
 
         internal override void Receive(string message, ISerializer serializer)
         {
