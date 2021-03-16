@@ -24,11 +24,6 @@ namespace Ros2SocketClient
         public string stringData = "string from unity!";
         public bool sendMsg = false;
 
-        protected override void Start()
-        {
-            base.Start();
-        }
-
         private void FixedUpdate()
         {
             if (sendMsg)

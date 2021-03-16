@@ -22,6 +22,9 @@ using System.Threading;
 
 namespace Ros2SocketClient
 {
+    public enum CommunicatorType { Publisher, Subscriber };
+    public enum CommunicatorOperation { Register, Unregister };
+
     public class MetaSocket
     {
         private PairSocket socket;
@@ -41,18 +44,35 @@ namespace Ros2SocketClient
             log($"MetaSocket bound to:    tcp://{_host}:{_port}");
         }
 
-        public void Register(ICommunicator communicator)
+        public void RegisterCommunicator(ICommunicator communicator)
         {
             communicators.Add(communicator);
-
+                        
             NetMQMessage msg = new NetMQMessage(new List<byte[]> {
-                Encoding.UTF8.GetBytes(communicator.MessageType),
+                //Encoding.UTF8.GetBytes(communicator.GetType().Name), // did not work, " Publisher`1 "
+                Encoding.UTF8.GetBytes(communicator.Port),
+                Encoding.UTF8.GetBytes(communicator.CommunicatorType.ToString()),
+                Encoding.UTF8.GetBytes(CommunicatorOperation.Register.ToString()),
                 Encoding.UTF8.GetBytes(communicator.Topic),
-                Encoding.UTF8.GetBytes(communicator.Port)
+                Encoding.UTF8.GetBytes(communicator.MessageType)
             });
 
             socket.SendMultipartMessage(msg);
         }
+
+        public void UnregisterCommunicator(ICommunicator communicator)
+        {
+            communicators.Remove(communicator);
+
+            NetMQMessage msg = new NetMQMessage(new List<byte[]> {
+                Encoding.UTF8.GetBytes(communicator.Port),
+                Encoding.UTF8.GetBytes(communicator.CommunicatorType.ToString()),
+                Encoding.UTF8.GetBytes(CommunicatorOperation.Unregister.ToString())
+            });
+
+            socket.SendMultipartMessage(msg);
+        }
+
 
         public void UnregisterAll()
         {
@@ -67,16 +87,16 @@ namespace Ros2SocketClient
             log("MetaSocket unregistered all");
         }
     }
-
     public interface ICommunicator
     {
         string MessageType { get; }
         string Topic { get; }
         string Port { get; }
 
+        CommunicatorType CommunicatorType { get; }
+
         void Register();
         void Unregister();
-
     }
 
     /*
@@ -98,26 +118,30 @@ namespace Ros2SocketClient
         protected string url;
 
         protected Log log;
+        protected T message;
+        protected CommunicatorType communicatorType;
 
         protected string topic;
-        protected T message;
         protected int port;
 
         public string MessageType { get { return message.Type; } }
         public string Topic { get { return topic; } }
         public string Port { get { return port.ToString(); } }
-
+        public CommunicatorType CommunicatorType { get { return communicatorType; } }
 
         public void Register()
         {
             metaSocket.isConnected.WaitOne();
 
             port = socket.BindRandomPort($"tcp://{url}");
-            metaSocket.Register(this);
+            metaSocket.RegisterCommunicator(this);
             log($"Publisher socket bound to port: {port}");
         }
         public void Unregister()
         {
+            metaSocket.isConnected.WaitOne();
+
+            metaSocket.UnregisterCommunicator(this);
             socket.Close();
             socket.Dispose();
             log($"Unregistered the publisher socket with port {port}");
@@ -128,6 +152,7 @@ namespace Ros2SocketClient
     {
         public Publisher(MetaSocket _metaSocket, string _url, string _topic, Log _log)
         {
+            communicatorType = CommunicatorType.Publisher;
             log = _log;
             metaSocket = _metaSocket;
             socket = new PublisherSocket();
@@ -145,7 +170,6 @@ namespace Ros2SocketClient
             netMQmsg.Append(message.Serialize());
             socket.SendMultipartMessage(netMQmsg);
         }
-
     }
 }
 

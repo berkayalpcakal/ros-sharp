@@ -27,13 +27,47 @@ namespace Ros2SocketClient
         protected virtual void Start()
         {
             rosConnector = GetComponent<Ros2Connector>();
-            publisher = new Publisher<T>(rosConnector.metaSocket, rosConnector.host, Topic, new Log(x => Debug.Log(x)));
+            AdvertisePublisher();
+        }
+
+        protected void OnEnable()
+        {
+            Debug.Log("Publisher Enabled");
+            if (rosConnector != null)
+            {
+                AdvertisePublisher();
+            }
+        }
+
+        protected void OnDisable()
+        {
+            Debug.Log("Publisher Disabled");
+            UnadvertisePublisher();
+        }
+
+
+        protected void AdvertisePublisher()
+        {
+            if (publisher == null)
+            {
+                publisher = new Publisher<T>(rosConnector.metaSocket, rosConnector.host, Topic, new Log(x => Debug.Log(x)));
+            }
+        }
+
+        protected void UnadvertisePublisher()
+        {
+            if (publisher != null)
+            {
+                publisher.Unregister();
+                publisher = null;
+            }
         }
 
         protected void Publish(T message)
         {
             publisher.Publish(message);
         }
+
 
     }
 

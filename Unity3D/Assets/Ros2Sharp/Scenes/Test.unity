@@ -216,8 +216,6 @@ GameObject:
   - component: {fileID: 1922898829}
   - component: {fileID: 1922898831}
   - component: {fileID: 1922898834}
-  - component: {fileID: 1922898833}
-  - component: {fileID: 1922898832}
   m_Layer: 0
   m_Name: Ros2Connector
   m_TagString: Untagged
@@ -266,37 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Topic: topic_1
-  stringData: string from unity!
-  sendMsg: 0
---- !u!114 &1922898832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1922898828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7f6a967d89b76a4f9e8624585309fad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Topic: topic_4
-  stringData: string from unity!
-  sendMsg: 0
---- !u!114 &1922898833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1922898828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7f6a967d89b76a4f9e8624585309fad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Topic: topic_3
-  stringData: string from unity!
+  stringData: string to topic_1 from unity!
   sendMsg: 0
 --- !u!114 &1922898834
 MonoBehaviour:
@@ -305,13 +273,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1922898828}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7f6a967d89b76a4f9e8624585309fad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Topic: topic_2
-  stringData: string from unity!
+  stringData: string to topic_2 from unity!
   sendMsg: 0
 --- !u!1 &1931837277
 GameObject:

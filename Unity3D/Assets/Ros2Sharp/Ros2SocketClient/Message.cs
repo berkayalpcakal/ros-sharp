@@ -14,15 +14,20 @@ limitations under the License.
 */
 
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
 namespace Ros2SocketClient
 {
     public abstract class Message
     {
         public string RosMessageName { get; set; }
         public abstract string Type { get; }
-        public abstract byte[] Serialize();
 
         //public abstract Deserialize();
+        public abstract byte[] Serialize();
     }
 
 
@@ -40,7 +45,7 @@ namespace Ros2SocketClient
 
         public override byte[] Serialize()
         {
-            return System.Text.Encoding.UTF8.GetBytes(data);
+            return Encoding.UTF8.GetBytes(data);
         }
     }
 }
