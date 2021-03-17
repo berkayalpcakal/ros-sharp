@@ -29,15 +29,18 @@ namespace Ros2SocketClient
         public string port = "12346";
 
         public MetaSocket metaSocket;
-
+        public bool isUnregisteredAll { get; private set; }
+        
         private void Start()
         {
             metaSocket = new MetaSocket(host, port, new Log(x => Debug.Log(x)));
+            isUnregisteredAll = false;
         }
 
         private void OnApplicationQuit()
         {
             metaSocket.UnregisterAll();
+            isUnregisteredAll = true;
         }
 
     }
