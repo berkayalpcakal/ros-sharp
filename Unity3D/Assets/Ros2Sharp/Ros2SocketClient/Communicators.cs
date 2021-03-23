@@ -19,10 +19,13 @@ using NetMQ.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System;
+using System.Linq;
 
 namespace Ros2SocketClient
 {
-    public enum CommunicatorType { Publisher, Subscriber };
+    public delegate void SubscriptionCallback<T>(T t) where T : Message;
+
     public enum CommunicatorOperation { Register, Unregister };
 
     public class MetaSocket
@@ -49,9 +52,8 @@ namespace Ros2SocketClient
             communicators.Add(communicator);
                         
             NetMQMessage msg = new NetMQMessage(new List<byte[]> {
-                //Encoding.UTF8.GetBytes(communicator.GetType().Name), // did not work, " Publisher`1 "
                 Encoding.UTF8.GetBytes(communicator.Port),
-                Encoding.UTF8.GetBytes(communicator.CommunicatorType.ToString()),
+                Encoding.UTF8.GetBytes(communicator.Type),
                 Encoding.UTF8.GetBytes(CommunicatorOperation.Register.ToString()),
                 Encoding.UTF8.GetBytes(communicator.Topic),
                 Encoding.UTF8.GetBytes(communicator.MessageType)
@@ -66,7 +68,7 @@ namespace Ros2SocketClient
 
             NetMQMessage msg = new NetMQMessage(new List<byte[]> {
                 Encoding.UTF8.GetBytes(communicator.Port),
-                Encoding.UTF8.GetBytes(communicator.CommunicatorType.ToString()),
+                Encoding.UTF8.GetBytes(communicator.Type),
                 Encoding.UTF8.GetBytes(CommunicatorOperation.Unregister.ToString())
             });
 
@@ -76,8 +78,8 @@ namespace Ros2SocketClient
 
         public void UnregisterAll()
         {
-            foreach (var communicator in communicators)
-                communicator.Unregister();
+            foreach (var communicator in communicators.ToList())
+                communicator.UnregisterSocket();
 
             socket.Close();
             socket.Dispose();
@@ -92,34 +94,21 @@ namespace Ros2SocketClient
         string MessageType { get; }
         string Topic { get; }
         string Port { get; }
+        string Type { get; }
 
-        CommunicatorType CommunicatorType { get; }
-
-        void Register();
-        void Unregister();
+        void RegisterSocket();
+        void UnregisterSocket();
     }
-
-    /*
-    public class Subscriber<T> : ICommunicator where T : Message, new()
-    {
-        public readonly string topic;
-        protected T message;
-        private int port;
-        public string MessageType { get { return message.Type; } }
-        public string Topic { get { return topic; } }
-        public string Port { get { return port.ToString(); } }
-    }
-    */
 
     public abstract class Communicator<T> : ICommunicator where T : Message, new()
     {
+        protected NetMQPoller poller;
         protected NetMQSocket socket;
         protected MetaSocket metaSocket;
         protected string url;
 
         protected Log log;
         protected T message;
-        protected CommunicatorType communicatorType;
 
         protected string topic;
         protected int port;
@@ -127,32 +116,75 @@ namespace Ros2SocketClient
         public string MessageType { get { return message.Type; } }
         public string Topic { get { return topic; } }
         public string Port { get { return port.ToString(); } }
-        public CommunicatorType CommunicatorType { get { return communicatorType; } }
 
-        public void Register()
+        public string Type { get { return GetType().Name.Split('`')[0]; } }
+        
+        public void RegisterSocket()
         {
             metaSocket.isConnected.WaitOne();
 
             port = socket.BindRandomPort($"tcp://{url}");
             metaSocket.RegisterCommunicator(this);
-            log($"Publisher socket bound to port: {port}");
+            log($"Communicator socket bound to port: {port}");
         }
-        public void Unregister()
+        public void UnregisterSocket()
         {
             metaSocket.isConnected.WaitOne();
-
             metaSocket.UnregisterCommunicator(this);
+
+            if (poller != null)
+            {
+                if (poller.IsRunning)
+                    poller.Stop();
+                if(!poller.IsDisposed)
+                    poller.Dispose();
+            }
+
             socket.Close();
             socket.Dispose();
-            log($"Unregistered the publisher socket with port {port}");
+            log($"Unregistered the communicator socket with port {port}");
+        }
+    }
+
+
+    public class Subscriber<T> : Communicator<T> where T : Message, new()
+    {
+        public Subscriber(MetaSocket _metaSocket, SubscriptionCallback<T> _subscriptionHandler, string _url, string _topic, Log _log)
+        {
+            log = _log;
+            metaSocket = _metaSocket;
+            url = _url;
+            topic = _topic;
+            message = new T();
+
+            SubscriberSocket subscriberSocket = new SubscriberSocket();
+            socket = subscriberSocket;
+            RegisterSocket();
+
+            subscriberSocket.SubscribeToAnyTopic();
+            subscriberSocket.ReceiveReady += (sender, args) =>
+            {
+                OnReceiveMessage(_subscriptionHandler, args.Socket.ReceiveFrameBytes());
+            };
+
+            poller = new NetMQPoller();
+            poller.Add(subscriberSocket);
+            poller.RunAsync();
         }
 
+        public void OnReceiveMessage(SubscriptionCallback<T> SubscriptionCallback, byte[] encoded_msg)
+        {
+            //message.Deserialize(encoded_msg);
+            SubscriptionCallback(message);
+        }
     }
+
+
     public class Publisher<T> : Communicator<T> where T : Message, new()
     {
         public Publisher(MetaSocket _metaSocket, string _url, string _topic, Log _log)
         {
-            communicatorType = CommunicatorType.Publisher;
+            //communicatorType = CommunicatorType.Publisher;
             log = _log;
             metaSocket = _metaSocket;
             socket = new PublisherSocket();
@@ -160,7 +192,7 @@ namespace Ros2SocketClient
             topic = _topic;
             message = new T();
 
-            Register();
+            RegisterSocket();
         }
 
         public void Publish(T _message)
